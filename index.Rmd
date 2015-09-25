@@ -272,5 +272,31 @@ dec_to_base62(234) # 3M
 dec_to_base62(235) # 3N
 ```
 
+---
 
+Can make it a bit harder to predict by shuffling the digits string:
+```
+import random
+digits = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+digits = ''.join(random.sample(digits, len(digits)))
+
+def dec_to_base62(x, digits):
+	base62 = []
+	while(True):
+		rem = x % 62
+		base62.insert(0, digits[rem])
+		x = int(x) / 62
+		if(x <= 0):
+			break
+
+	return(''.join(base62))
+```
+
+A bit harder to predict, but doesn't fully solve close integers generating similar strings:
+```
+dec_to_base62(234, digits) #pc
+dec_to_base62(235, digits) #p3
+```
+
+---
 
