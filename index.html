@@ -340,7 +340,7 @@ m.hexdigest()
 <li>Can be done without hashing: convert base 10 (Row IDs) to base 62 (lower/upper case plus 0 - 9)</li>
 <li>No longer a one-way function</li>
 <li>Don&#39;t want users to be able to guess URLs.</li>
-<li>Don&#39;t want users to be able to guess &quot;next&quot; URLs.</li>
+<li>Don&#39;t want users to be able to guess next URLs.</li>
 <li>Don&#39;t want bad words to appear in URLs.</li>
 </ul>
 
@@ -365,6 +365,113 @@ m.hexdigest()
 <pre><code>dec_to_base62(234) # 3M
 dec_to_base62(235) # 3N
 </code></pre>
+
+</section>
+<section class='' data-state='' id='slide-14'>
+  
+  <p>Can make it a bit harder to predict by shuffling the digits string:</p>
+
+<pre><code>import random
+digits = &#39;0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&#39;
+digits = &#39;&#39;.join(random.sample(digits, len(digits)))
+
+def dec_to_base62(x, digits):
+    base62 = []
+    while(True):
+        rem = x % 62
+        base62.insert(0, digits[rem])
+        x = int(x) / 62
+        if(x &lt;= 0):
+            break
+
+    return(&#39;&#39;.join(base62))
+</code></pre>
+
+<p>A bit harder to predict, but doesn&#39;t fully solve close integers generating similar strings:</p>
+
+<pre><code>dec_to_base62(234, digits) #pc
+dec_to_base62(235, digits) #p3
+</code></pre>
+
+</section>
+<section>
+   <section class='' data-state=''>
+    <h2>Solution</h2>
+    <ul>
+<li>Combine previous ideas of hashing, shuffling and base 62.</li>
+<li>Start with an alphabet of 62 characters.</li>
+<li>Shuffle alphabet and &quot;randomly&quot; choose letters in alphabet based on your input number.</li>
+</ul>
+
+    <aside class='notes'>
+      
+    </aside>
+   </section>
+   <section class='' data-state=''>
+    <h2>Encoding Integer to String</h2>
+
+<pre><code>alphabet = &#39;0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&#39;
+def _encode(number, alphabet):
+    encoded = &#39;&#39;
+    len_alphabet = len(alphabet)
+    while True:
+        encoded = alphabet[number % len_alphabet] + encoded
+        number //= len_alphabet
+        if not number:
+            return encoded
+</code></pre>
+
+    <aside class='notes'>
+      
+    </aside>
+   </section>
+   <section class='' data-state=''>
+    <h2>Advantages</h2>
+
+<ul>
+<li>Similar idea to hashing but no collisions are possible.</li>
+<li>Can actually reverse the process to decode.</li>
+</ul>
+
+<pre><code>def _decode(encoded_str, alphabet):
+    number = 0
+    len_hash = len(encoded_str)
+    len_alphabet = len(alphabet)
+    for i, character in enumerate(encoded_str):
+        position = alphabet.index(character)
+        number += position * len_alphabet ** (len_hash - i - 1)
+
+    return number
+</code></pre>
+
+    <aside class='notes'>
+      
+    </aside>
+   </section>
+</section>
+<section class='' data-state='' id='slide-16'>
+  <h2>Hashids</h2>
+  <ul>
+<li>Turns out someone has thought about this problem and released a library.</li>
+<li><a href="http://hashids.org">http://hashids.org</a></li>
+<li>Also encodes integer vectors, and reserves some characters as separators so it prevents the possibility of swear words.</li>
+<li><a href="http://hashids.org/r/">http://hashids.org/r/</a></li>
+</ul>
+
+</section>
+<section class='' data-state='' id='slide-17'>
+  <h2>Other issues for URL shorteners:</h2>
+  <ul>
+<li>Linking to malicious sites.</li>
+<li>Need a quick way to check if submitted URLs are malicious links.</li>
+<li>Filter javascript.</li>
+<li>Need fast lookup to check sites: bloom filters.</li>
+</ul>
+
+</section>
+<section class='' data-state='' id='slide-18'>
+  <h2>END</h2>
+  <p><img src="Ice_King.png" alt="Drawing" style="width: 250px;"/></p>
 
 </section>
     </div>

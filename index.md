@@ -245,7 +245,7 @@ Hashing the URLs directly is more work than necessary.
 - Can be done without hashing: convert base 10 (Row IDs) to base 62 (lower/upper case plus 0 - 9)
 - No longer a one-way function
 - Don't want users to be able to guess URLs.
-- Don't want users to be able to guess "next" URLs.
+- Don't want users to be able to guess next URLs.
 - Don't want bad words to appear in URLs.
 
 ---
@@ -272,5 +272,91 @@ dec_to_base62(234) # 3M
 dec_to_base62(235) # 3N
 ```
 
+---
 
+Can make it a bit harder to predict by shuffling the digits string:
+```
+import random
+digits = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+digits = ''.join(random.sample(digits, len(digits)))
 
+def dec_to_base62(x, digits):
+	base62 = []
+	while(True):
+		rem = x % 62
+		base62.insert(0, digits[rem])
+		x = int(x) / 62
+		if(x <= 0):
+			break
+
+	return(''.join(base62))
+```
+
+A bit harder to predict, but doesn't fully solve close integers generating similar strings:
+```
+dec_to_base62(234, digits) #pc
+dec_to_base62(235, digits) #p3
+```
+
+--- &vertical
+
+## Solution
+
+- Combine previous ideas of hashing, shuffling and base 62.
+- Start with an alphabet of 62 characters.
+- Shuffle alphabet and "randomly" choose letters in alphabet based on your input number.
+
+***
+
+## Encoding Integer to String
+
+```
+alphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+def _encode(number, alphabet):
+    encoded = ''
+    len_alphabet = len(alphabet)
+    while True:
+        encoded = alphabet[number % len_alphabet] + encoded
+        number //= len_alphabet
+        if not number:
+            return encoded
+```
+
+***
+
+## Advantages
+- Similar idea to hashing but no collisions are possible.
+- Can actually reverse the process to decode.
+
+```
+def _decode(encoded_str, alphabet):
+    number = 0
+    len_hash = len(encoded_str)
+    len_alphabet = len(alphabet)
+    for i, character in enumerate(encoded_str):
+        position = alphabet.index(character)
+        number += position * len_alphabet ** (len_hash - i - 1)
+
+    return number
+```
+
+---
+
+## Hashids
+- Turns out someone has thought about this problem and released a library.
+- http://hashids.org
+- Also encodes integer vectors, and reserves some characters as separators so it prevents the possibility of swear words.
+- http://hashids.org/r/
+
+---
+
+## Other issues for URL shorteners:
+- Linking to malicious sites.
+- Need a quick way to check if submitted URLs are malicious links.
+- Filter javascript.
+- Need fast lookup to check sites: bloom filters.
+
+--- 
+
+## END
+<img src="Ice_King.png" alt="Drawing" style="width: 250px;"/>
