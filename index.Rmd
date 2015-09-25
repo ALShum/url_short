@@ -347,6 +347,12 @@ def _decode(encoded_str, alphabet):
 - http://hashids.org
 - Also encodes integer vectors, and reserves some characters as separators so it prevents the possibility of swear words.
 - http://hashids.org/r/
+```
+from hashids import Hashids
+hashids = Hashids(salt="salt string")
+id = hashids.encode(1, 2, 3) #'8bUkTP'
+numbers = hashids.decode(id) #(1,2,3)
+```
 
 ---
 
