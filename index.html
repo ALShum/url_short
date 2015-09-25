@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Writing your own URL shortener</title>
+  <meta name="description" content="">
+  <meta name="author" content="Alex Shum">
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="stylesheet" href="libraries/frameworks/revealjs/css/reveal.min.css">
+  <link rel="stylesheet" href="libraries/frameworks/revealjs/css/theme/default.css" id="theme">
+  <link rel="stylesheet" href="libraries/highlighters/highlight.js/css/tomorrow.css" id="theme">
+  <!--[if lt IE 9]>
+  <script src="lib/js/html5shiv.js"></script>
+  <![endif]-->  <link rel="stylesheet" href = "assets/css/ribbons.css">
+
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+      <section class='' data-state='' id='slide-1'>
+  <h2>Writing your own URL shortener</h2>
+  <p>Alex Shum</p>
+
+<p>September 25, 2015</p>
+
+</section>
+<section class='' data-state='' id='slide-2'>
+  <h2>About Me</h2>
+  <p><img src="bio-photo.jpg" alt="Drawing" style="width: 250px;"/></p>
+
+<p>Languages: R, Java, C/C++</p>
+
+<p>Github: <a href="http://www.github.com/ALShum">www.github.com/ALShum</a> <br/>
+URL: <a href="http://www.ALShum.com">www.ALShum.com</a>  <br/>
+Twitter: @NotAlexShum</p>
+
+</section>
+<section>
+   <section class='' data-state=''>
+    <h2>URL Shorteners</h2>
+    <ul>
+<li>Condense regular URL into short form.</li>
+<li>For use with Twitter.</li>
+<li>Also used to monitor traffic.</li>
+<li><a href="http://Bit.ly">http://Bit.ly</a>, <a href="http://t.co">http://t.co</a>, <a href="http://tinyURL.com">http://tinyURL.com</a></li>
+</ul>
+
+    <aside class='notes'>
+      
+    </aside>
+   </section>
+   <section class='' data-state=''>
+    <h2>Bitly Example</h2>
+
+<p>Start URL:</p>
+
+<p><a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">https://www.youtube.com/watch?v=dQw4w9WgXcQ</a> </p>
+
+    <aside class='notes'>
+      
+    </aside>
+   </section>
+   <section class='' data-state=''>
+    <h2>Bitly Example</h2>
+
+<p>Short URL:</p>
+
+<p><a href="http://bit.ly/IqT6zt">http://bit.ly/IqT6zt</a></p>
+
+    <aside class='notes'>
+      
+    </aside>
+   </section>
+</section>
+<section class='' data-state='' id='slide-4'>
+  <h2>How to convert long URL to Short</h2>
+  <p>Naive Approach:</p>
+
+<ol>
+<li><p>Hashing the long URL</p></li>
+<li><p>Convert hash integer to base 62</p></li>
+</ol>
+
+</section>
+<section>
+   <section class='' data-state=''>
+    <h2>Introduction to Hashing</h2>
+    <ul>
+<li>Hashing function maps arbitrary data type to an integer.</li>
+<li>Often used to map a data type into an index value for a table.</li>
+</ul>
+
+    <aside class='notes'>
+      
+    </aside>
+   </section>
+   <section class='' data-state=''>
+    <h2>Simple hash function</h2>
+
+<p>\[
+f(x) = ax + b \text{ mod } c
+\]</p>
+
+<p>Where \[ a \] and \[ c \] have to be relatively prime.</p>
+
+    <aside class='notes'>
+      
+    </aside>
+   </section>
+   <section class='' data-state=''>
+    <h2>Example Usage:</h2>
+
+<pre><code>def hash(input):
+    a = 5
+    b = 3
+    c = 11
+
+    return((a * input + b) % c)
+</code></pre>
+
+    <aside class='notes'>
+      
+    </aside>
+   </section>
+   <section class='' data-state=''>
+    <h2>Example Usage 2:</h2>
+
+<p>When dealing with non-numeric data, there needs to be a way to convert elements to numbers.  For example, characters can be converted to their ASCII values.</p>
+
+<pre><code>def hash(char):
+    x = ord(char)
+    a = 2
+    b = 1
+    c = 5
+
+    return((a * x + b) % c)
+</code></pre>
+
+    <aside class='notes'>
+      
+    </aside>
+   </section>
+   <section class='' data-state=''>
+    <h2>Hash Collisions</h2>
+
+<p>The problem with hash functions is possibility with collisions.</p>
+
+<p>Two different elements can hash to the same value</p>
+
+<pre><code>def hash(input):
+    a = 5
+    b = 3
+    c = 11
+    return((a * input + b) % c)
+
+hash(1) # 8
+hash(12) # 8
+</code></pre>
+
+    <aside class='notes'>
+      
+    </aside>
+   </section>
+</section>
+<section>
+   <section class='' data-state=''>
+    <h2>Cryptographic Hash Functions</h2>
+    <ul>
+<li>Somewhat similar to simple hash functions.</li>
+<li>Very unlikely to generate hash collisions.</li>
+<li>One way: difficult to calculate the input element given the hash values.</li>
+</ul>
+
+    <aside class='notes'>
+      
+    </aside>
+   </section>
+   <section class='' data-state=''>
+    <h2>Cryptographic Hash Functions</h2>
+
+<ul>
+<li>MD5, SHA-1</li>
+<li>MD5 returns a 32 digit hexadecimal number.</li>
+</ul>
+
+<pre><code>import hashlib
+m = hashlib.md5(&quot;http://en.wikipedia.org&quot;)
+m.hexdigest()
+#&#39;c8c50bcae456402f5123ea38e124cb3f&#39;
+</code></pre>
+
+    <aside class='notes'>
+      
+    </aside>
+   </section>
+   <section class='' data-state=''>
+    <p>Clearly a 32 digit string defeats the purpose of a short URL.</p>
+
+<p>Convert to base 62 and truncate MD5 hash from 32 characters to 6 - 8 characters.</p>
+
+<p>Unfortunately, this greatly increases the probability of a collision.</p>
+
+    <aside class='notes'>
+      
+    </aside>
+   </section>
+</section>
+<section class='' data-state='' id='slide-7'>
+  <h2>Math</h2>
+  <p>Mathematically speaking, it&#39;s not possible to hash a URL without producing a significant amount of hash collisions.</p>
+
+<p>To see why, look at URL structure:</p>
+
+</section>
+<section>
+   <section class='' data-state=''>
+    <h2>URL Structure</h2>
+    <p>scheme :// [user:pass@] domain [:port] / path [?query] [#fragment]</p>
+
+<p>Scheme: ftp://, http://, https://</p>
+
+    <aside class='notes'>
+      
+    </aside>
+   </section>
+   <section class='' data-state=''>
+    <p>Domain: <a href="http://google.com">http://google.com</a>, <a href="http://wikipedia.org">http://wikipedia.org</a>, <a href="http://github.com">http://github.com</a></p>
+
+<ol>
+<li>case insensitive</li>
+<li>a - z, 0 - 9, &#39;-&#39;</li>
+<li>64 characters long.</li>
+</ol>
+
+    <aside class='notes'>
+      
+    </aside>
+   </section>
+   <section class='' data-state=''>
+    <p>Path: <a href="http://www.wikipedia.org/wiki/Hamtaro">http://www.wikipedia.org/wiki/Hamtaro</a></p>
+
+<ol>
+<li>case sensitive</li>
+<li>a - z, A - Z, 0 - 9, &#39;-&#39;, &#39;_&#39;</li>
+<li>no real character limit</li>
+</ol>
+
+    <aside class='notes'>
+      
+    </aside>
+   </section>
+   <section class='' data-state=''>
+    <h2>How many unique URLs are possible?</h2>
+
+<p>Unique Domains: \[
+37^{64}
+\]</p>
+
+<p>Unique URL Paths, Assume 100 character limit:
+\[
+64^{100}
+\]</p>
+
+<p>Total:
+\[
+37^{64} * 64^{100}
+\]</p>
+
+    <aside class='notes'>
+      
+    </aside>
+   </section>
+   <section class='' data-state=''>
+    <h2>How many unique shortened URLs are possible?</h2>
+
+<ul>
+<li>Shortened String will be 6 characters.</li>
+<li>Possible characters a - z, A - Z, 0 - 9.</li>
+<li>\[
+62^6
+\]</li>
+</ul>
+
+    <aside class='notes'>
+      
+    </aside>
+   </section>
+</section>
+<section class='' data-state='' id='slide-9'>
+  <h2>Reality</h2>
+  <p>Trying to map a MUCH bigger set into a small set.  This is impossible without collisions.</p>
+
+</section>
+<section class='' data-state='' id='slide-10'>
+  <h2>Solutions</h2>
+  <p>Hashing the URLs directly is more work than necessary.</p>
+
+<ul>
+<li><p>Most random combination of strings are not valid URLs.</p></li>
+<li><p>Most valid URLs will not be inputted into a URL shortening service.</p></li>
+<li><p>Only worry about the URLs that have been submitted by a user.</p></li>
+</ul>
+
+</section>
+<section>
+   <section class='' data-state=''>
+    <h2>Database approach</h2>
+    <ul>
+<li>Store incoming submitted URLs in database.</li>
+<li>Hash the row ID of URL.</li>
+<li>Only worry about generating shortened URLs for submitted URLs.</li>
+</ul>
+
+    <aside class='notes'>
+      
+    </aside>
+   </section>
+   <section class='' data-state=''>
+    <h2>Database Structure</h2>
+
+<pre><code>+--------+--------------+------+-----+---------+----------------+
+| Field  | Type         | Null | Key | Default | Extra          |
++--------+--------------+------+-----+---------+----------------+
+| id     | bigint(20)   | NO   | PRI | NULL    | auto_increment |
+| orig   | varchar(512) | NO   |     | NULL    |                |
+| short  | varchar(10)  | NO   |     | NULL    |                |
+| visits | bigint(20)   | NO   |     | NULL    |                |
++--------+--------------+------+-----+---------+----------------+
+</code></pre>
+
+    <aside class='notes'>
+      
+    </aside>
+   </section>
+</section>
+<section class='' data-state='' id='slide-12'>
+  <h2>Row IDs into Strings</h2>
+  <ul>
+<li>Can be done without hashing: convert base 10 (Row IDs) to base 62 (lower/upper case plus 0 - 9)</li>
+<li>No longer a one-way function</li>
+<li>Don&#39;t want users to be able to guess URLs.</li>
+<li>Don&#39;t want users to be able to guess &quot;next&quot; URLs.</li>
+<li>Don&#39;t want bad words to appear in URLs.</li>
+</ul>
+
+</section>
+<section class='' data-state='' id='slide-13'>
+  <h2>Converting from base 10 to base 62</h2>
+  <pre><code>def dec_to_base62(x):
+    digits = &#39;0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&#39;
+    base62 = []
+    while(True):
+        rem = x % 62
+        base62.insert(0, digits[rem])
+        x = int(x) / 62
+        if(x &lt;= 0):
+            break
+
+    return(&#39;&#39;.join(base62))
+</code></pre>
+
+<p>Notice that adjacent integers will produce similar strings:</p>
+
+<pre><code>dec_to_base62(234) # 3M
+dec_to_base62(235) # 3N
+</code></pre>
+
+</section>
+    </div>
+  </div>
+</body>
+  <script src="libraries/frameworks/revealjs/lib/js/head.min.js"></script>
+  <script src="libraries/frameworks/revealjs/js/reveal.min.js"></script>
+  <script>
+  // Full list of configuration options available here:
+  // https://github.com/hakimel/reveal.js#configuration
+  Reveal.initialize({
+    controls: true,
+    progress: true,
+    history: true,
+    center: true,
+    theme: Reveal.getQueryHash().theme || 'default', 
+    transition: Reveal.getQueryHash().transition || 'default', 
+    dependencies: [
+    // Cross-browser shim that fully implements classList -
+    // https://github.com/eligrey/classList.js/
+      { src: 'libraries/frameworks/revealjs/lib/js/classList.js', condition: function() { return !document.body.classList;}},
+      // Zoom in and out with Alt+click
+      { src: 'libraries/frameworks/revealjs/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+      // Speaker notes
+      { src: 'libraries/frameworks/revealjs/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+      // Remote control your reveal.js presentation using a touch device
+      //{ src: 'libraries/frameworks/revealjs/plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+      ]
+  });
+  </script>  <!-- MathJax: Fall back to local if CDN offline but local image fonts are not supported (saves >100MB) -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [['$','$'], ['\\(','\\)']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<!-- <script src="https://c328740.ssl.cf1.rackcdn.com/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script> -->
+<script>window.MathJax || document.write('<script type="text/x-mathjax-config">MathJax.Hub.Config({"HTML-CSS":{imageFont:null}});<\/script><script src="libraries/widgets/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"><\/script>')
+</script>
+<!-- LOAD HIGHLIGHTER JS FILES -->
+<script src="libraries/highlighters/highlight.js/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<!-- DONE LOADING HIGHLIGHTER JS FILES -->
+ 
+
+</html>
