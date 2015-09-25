@@ -455,14 +455,14 @@ def _encode(number, alphabet):
 <li>Turns out someone has thought about this problem and released a library.</li>
 <li><a href="http://hashids.org">http://hashids.org</a></li>
 <li>Also encodes integer vectors, and reserves some characters as separators so it prevents the possibility of swear words.</li>
-<li><a href="http://hashids.org/r/">http://hashids.org/r/</a>
-<code>
-from hashids import Hashids
+<li><a href="http://hashids.org/r/">http://hashids.org/r/</a></li>
+</ul>
+
+<pre><code>from hashids import Hashids
 hashids = Hashids(salt=&quot;salt string&quot;)
 id = hashids.encode(1, 2, 3) #&#39;8bUkTP&#39;
 numbers = hashids.decode(id) #(1,2,3)
-</code></li>
-</ul>
+</code></pre>
 
 </section>
 <section class='' data-state='' id='slide-17'>
